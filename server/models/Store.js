@@ -1,7 +1,10 @@
 "use strict";
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'),
+    slugify = require('slugify');
 
+
+// ==================== STORE SCHEMA ====================
 const storeSchema = mongoose.Schema({
     storeName: {
         type: String,
@@ -35,7 +38,7 @@ const storeSchema = mongoose.Schema({
     }
 });
 
-const slugify = require('slugify');
+
 
 // This code runs automatically right BEFORE a store is saved
 storeSchema.pre('save', function () {

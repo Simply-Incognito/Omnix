@@ -39,10 +39,15 @@ app.use('/api', rateLimiter);
 
 // Routers
 const authRouter = require(`${__dirname}/routes/authRoutes`);
-
-
+const storeRouter = require(`${__dirname}/routes/storeRoutes`);
 
 app.use('/api/v1/auth', authRouter);
+//app.use('/api/v1/users', userRouter);
+app.use('/api/v1/stores', storeRouter);
+//app.use('/api/v1/products', productRouter);
+//app.use('/api/v1/orders', orderRouter);
+//app.use('/api/v1/payments', paymentRouter);
+//app.use('/api/v1/analytics', analyticsRouter);
 
 
 // Default Routes
