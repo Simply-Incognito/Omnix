@@ -2,6 +2,8 @@
 
 const { Schema, model } = require('mongoose');
 
+const bcrypt = require('bcryptjs');
+
 const validator = require('validator');
 
 const userSchema = Schema({
@@ -37,7 +39,7 @@ const userSchema = Schema({
         required: [true, "Please confirm your password!"],
         trim: true,
         validate: {
-            validator: function(val) {
+            validator: function (val) {
                 return val === this.password;
             },
             message: "Passwords do not match!"
@@ -47,6 +49,30 @@ const userSchema = Schema({
     passwordChangedAt: Date,
     passwordResetTokenExpires: Date
 });
+
+// Hash Password
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined;
+
+    // Password Changed at (for JWT)
+    this.passwordChangedAt = Date.now() - 1000;
+});
+
+// Instance method to Validate user password for login
+userSchema.methods.validateUserPassword = function (password, hash) {
+    return bcrypt.compare(password, hash);
+}
+
+// Instance method to check if password was changed after token generation
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+    if (this.passwordChangedAt) {
+        // Convert Date object to milliseconds and compare
+        return this.passwordChangedAt.getTime() / 1000 > JWTTimestamp;
+    }
+    return false;
+};
 
 
 const User = model('User', userSchema);

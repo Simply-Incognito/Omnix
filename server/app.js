@@ -37,6 +37,13 @@ const rateLimiter = rateLimit({
 
 app.use('/api', rateLimiter);
 
+// Routers
+const authRouter = require(`${__dirname}/routes/authRoutes`);
+
+
+
+app.use('/api/v1/auth', authRouter);
+
 
 // Default Routes
 app.use((req, res, next) => {
