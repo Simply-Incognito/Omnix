@@ -1,8 +1,8 @@
 "use strict";
 
-const Store = require(`${_dirname}/../models/Store`);
+const Store = require(`${__dirname}/../models/Store`);
 
-const asyncErrorHandler = require(`${_dirname}/../utils/asyncErrorHandler`);
+const asyncErrorHandler = require(`${__dirname}/../utils/asyncErrorHandler`);
 
 const attachTenant = asyncErrorHandler(async (req, res, next) => {
     let storeId = null;
