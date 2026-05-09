@@ -14,6 +14,7 @@ const createToken = (id) => {
 // Register - POST /register req.body = {firstname, lastname, username, email, gender, password, confirmPassword}
 exports.register = asyncErrorHandler(async (req, res, next) => {
 
+    
     // check if req.body is not empty
 
     if (!req.body) {
@@ -32,6 +33,8 @@ exports.register = asyncErrorHandler(async (req, res, next) => {
         secure: false, // Set to true for HTTPS
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
+
+    console.log(user);
 
     // Response
     res.status(201).json({

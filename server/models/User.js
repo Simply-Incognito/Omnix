@@ -7,16 +7,33 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const userSchema = Schema({
-    name: {
+    firstname: {
         type: String,
         trim: true,
-        required: [true, 'Please provide a name.']
+        required: [true, 'Please provide a first name.']
+    },
+    lastname: {
+        type: String,
+        trim: true,
+        required: [true, 'Please provide a last name.']
+    },
+    username: {
+        type: String,
+        trim: true,
+        required: [true, 'Please provide a username.']
+    },
+    phone: {
+        type: String,
+        trim: true,
+        required: [true, 'Please provide a phone number.'],
+        unique: true,
+        validate: { validator: validator.isMobilePhone, message: 'Please provide a valid phone number' }
     },
     email: {
         type: String,
         trim: true,
         required: [true, 'Please provide an email.'],
-        validate: [validator.isEmail, "Please provide a valid email"],
+        validate: { validator: validator.isEmail, message: 'Please provide a valid email' },
         unique: true
     },
     role: {
@@ -53,7 +70,7 @@ const userSchema = Schema({
 // Hash Password
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, 10);
     this.passwordConfirm = undefined;
 
     // Password Changed at (for JWT)
