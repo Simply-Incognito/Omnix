@@ -61,7 +61,7 @@ exports.restrictTo = (...roles) => asyncErrorHandler(async (req, res, next) => {
     const role = req.user.role;
 
     if (!roles.includes(role)) {
-        return next(new CustomError("You are not allowed to perform this action!", 403));
+        return next(new AppError("You are not allowed to perform this action!", 403));
     }
 
     next();

@@ -31,12 +31,40 @@ exports.addVendor = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
+// Add Staff(Vendor)
+exports.addStaff = asyncErrorHandler(async (req, res, next) => {
+    // req.body -> email
+    // Find the user the vendor wants to hire by email
+    const employee = await User.findOne({ email: req.body.email });
+
+    if (!employee) {
+        return next(new AppError("User not found!", 404));
+    }
+
+    // Change role to staff and link them to the store
+    employee.role = 'staff';
+    employee.employedAtStoreId = req.storeId; // Injected by tenant.js middleware!
+    await employee.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Staff member added successfully.'
+    });
+
+});
+
+
+// View Vendor Store (super_admin, vendor_admin)
 exports.getStores = asyncErrorHandler(async (req, res, next) => {
     let filteredStores;
 
     // Only vendor_admin can see their own store
     if (req.user.role === 'vendor_admin') {
         filteredStores = await Store.find({ owner: req.user.id });
+    }
+
+    if (req.user.role === 'staff') {
+        filteredStores = await Store.find({ _id: req.user.employedAtStoreId});
     }
 
     // Super_admin can see all stores

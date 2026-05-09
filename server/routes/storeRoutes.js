@@ -11,6 +11,16 @@ router.route('/')
     .post(authMiddleware.protect, storesController.addVendor)
     .get(authMiddleware.protect, storesController.getStores);
 
+const tenantMiddleware = require(`${__dirname}/../middleware/tenant`);
+
+router.route('/staff')
+    .post(
+        authMiddleware.protect, 
+        authMiddleware.restrictTo('vendor_admin', 'super_admin'), 
+        tenantMiddleware.attachTenant,
+        storesController.addStaff
+    );
+
 
 
 

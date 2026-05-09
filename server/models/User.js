@@ -1,12 +1,10 @@
 "use strict";
 
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose'),
+    bcrypt = require('bcryptjs'),
+    validator = require('validator');
 
-const bcrypt = require('bcryptjs');
-
-const validator = require('validator');
-
-const userSchema = Schema({
+const userSchema = mongoose.Schema({
     firstname: {
         type: String,
         trim: true,
@@ -45,6 +43,10 @@ const userSchema = Schema({
     active: {
         type: Boolean,
         default: true
+    },
+    employedAtStoreId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Store'
     },
     password: {
         type: String,
@@ -92,6 +94,4 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 
-const User = model('User', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);
