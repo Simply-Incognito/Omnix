@@ -4,17 +4,27 @@ const asyncErrorHandler = require(`${__dirname}/../Utils/asyncErrorHandler`);
 const AppError = require(`${__dirname}/../Utils/AppError`);
 
 const Store = require(`${__dirname}/../models/Store`);
+const User = require(`${__dirname}/../models/User`);
 
+// Become a Vendor
 exports.addVendor = asyncErrorHandler(async (req, res, next) => {
     // storename, optionalsettings
+
+    // 1. Create the store
     const store = await Store.create({
         storeName: req.body.storeName,
         owner: req.user.id,
         settings: req.body.settings
     });
 
+    // 2. Upgrade the user's role to vendor_admin!
+    const user = await User.findById(req.user.id);
+    user.role = 'vendor_admin';
+    await user.save({ validateBeforeSave: false });
+
     res.status(201).json({
-        success: true,
+        status: 'success',
+        message: "Congratulations, you are now a store owner!",
         data: {
             store
         }

@@ -6,7 +6,7 @@ const asyncErrorHandler = require(`${__dirname}/../Utils/asyncErrorHandler`);
 const AppError = require(`${__dirname}/../Utils/AppError`);
 
 // User Model
-const User = require(`${__dirname}/../Models/user`);
+const User = require(`${__dirname}/../models/User`);
 
 // Protect Routes
 exports.protect = asyncErrorHandler(async (req, res, next) => {

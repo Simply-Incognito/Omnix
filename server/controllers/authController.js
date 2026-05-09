@@ -5,21 +5,47 @@ const asyncErrorHandler = require(`${__dirname}/../Utils/asyncErrorHandler`);
 const AppError = require(`${__dirname}/../Utils/AppError`);
 
 // User Model
-const User = require(`${__dirname}/../Models/user`);
+const User = require(`${__dirname}/../models/User`);
 
 const createToken = (id) => {
     return jwt.sign({ id: id }, process.env.SECRET_KEY, { expiresIn: process.env.JWT_TOKEN_EXPIRES_IN });
 }
 
+
+const filterReqObj = (allowedFields, reqObj) => {
+    const fields = Object.keys(reqObj);
+    const filteredReqObj = {};
+
+    fields.map(field => {
+        if (allowedFields.includes(field)) {
+            filteredReqObj[field] = reqObj[field];
+        }
+    });
+
+    return filteredReqObj;
+}
+
 // Register - POST /register req.body = {firstname, lastname, username, email, gender, password, confirmPassword}
 exports.register = asyncErrorHandler(async (req, res, next) => {
 
-    
+
     // check if req.body is not empty
 
     if (!req.body) {
         return next(new AppError("Invalid request.", 400));
     }
+
+    // Filter out unwanted fields!
+    req.body = filterReqObj([
+        'firstname',
+        'lastname',
+        'username',
+        'email',
+        'phone',
+        'gender',
+        'password',
+        'passwordConfirm'
+    ], req.body);
 
     // Create new user
     const user = await User.create(req.body);
@@ -34,7 +60,6 @@ exports.register = asyncErrorHandler(async (req, res, next) => {
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
-    console.log(user);
 
     // Response
     res.status(201).json({

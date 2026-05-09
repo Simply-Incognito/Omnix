@@ -4,7 +4,7 @@
 // const CustomError = require(`${__dirname}/../Utils/CustomError`);
 
 // // User Model
-// const User = require(`${__dirname}/../Models/user`);
+// const User = require(`${__dirname}/../models/User`);
 
 // exports.promoteUser = asyncErrorHandler(async (req, res, next) => {
 //     const user = await User.findById(req.params.id);
