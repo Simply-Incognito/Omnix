@@ -30,8 +30,15 @@ const prodError = (error, res) => {
 }
 
 const duplicateKeyErrorHandler = (error) => {
-    const errMsg = `The ${(Object.keys(error.keyValue))[0]} '${(Object.values((error.keyValue)))[0]}' already exists`
-    return new AppError(errMsg, 400);
+    // Check if the error contains 'name' (for our compound product index)
+    if (error.keyValue && error.keyValue.name) {
+        return new AppError(`A product with the name '${error.keyValue.name}' already exists in your store!`, 400);
+    }
+
+    // Fallback for normal unique indexes
+    const key = Object.keys(error.keyValue)[0];
+    const val = Object.values(error.keyValue)[0];
+    return new AppError(`The ${key} '${val}' already exists.`, 400);
 }
 
 const validationErrorHandler = (error) => {
@@ -40,7 +47,7 @@ const validationErrorHandler = (error) => {
 }
 
 const tokenExpiredErrorHandler = (error) => {
-    return new AppError("Please login", 401);
+    return new AppError("Session Expired! Please login again.", 401);
 }
 
 module.exports = (error, req, res, next) => {
@@ -48,12 +55,18 @@ module.exports = (error, req, res, next) => {
     error.message = error.message || "Internal Server Error";
     error.statusCode = error.statusCode || 500;
 
+    // Transform specific MongoDB errors into nice AppErrors
+    let err = { ...error };
+    err.message = error.message; // Spread operator doesn't copy non-enumerable properties like message
+    err.name = error.name;
+
+    if (error.code === 11000) err = duplicateKeyErrorHandler(error);
+    if (error.name === 'ValidationError') err = validationErrorHandler(error);
+    if (error.name === 'TokenExpiredError') err = tokenExpiredErrorHandler(error);
+
     if (process.env.NODE_ENV === 'development') {
-        devError(error, res);
+        devError(err, res);
     } else if (process.env.NODE_ENV === 'production') {
-        if (error.code === 11000) error = duplicateKeyErrorHandler(error);
-        if (error.name === 'ValidationError') error = validationErrorHandler(error);
-        if (error.name === 'TokenExpiredError') error = tokenExpiredErrorHandler(error)
-        prodError(error, res);
+        prodError(err, res);
     }
 }

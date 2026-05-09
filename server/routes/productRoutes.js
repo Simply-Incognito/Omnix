@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.route('/')
     .get(
+        authMiddleware.protect, 
         tenantMiddleware.attachTenant, 
         productsController.getAllProducts
     )

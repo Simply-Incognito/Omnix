@@ -72,10 +72,17 @@ exports.getStores = asyncErrorHandler(async (req, res, next) => {
         filteredStores = await Store.find();
     }
 
+    // Customers can see a public "directory" of all active stores, but we hide sensitive data!
+    if (req.user.role === 'customer') {
+        filteredStores = await Store.find({ status: 'active' })
+            .select('storeName slug settings.themeColor'); // Only return safe, public fields
+    }
+
     res.status(200).json({
         success: true,
         data: {
-            filteredStores
+            count: filteredStores.length,
+            stores: filteredStores
         }
     });
 });

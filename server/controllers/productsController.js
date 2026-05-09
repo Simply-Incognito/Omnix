@@ -8,7 +8,13 @@ const Product = require(`${__dirname}/../models/Product`);
 exports.getAllProducts = asyncErrorHandler(async (req, res, next) => {
     // Because of tenant.js, req.storeId is guaranteed to be correct here!
     // This will ONLY return products for that specific vendor.
-    const products = await Product.find({ storeId: req.storeId });
+    let products;
+
+    if (req.user.role === 'vendor_admin') {
+        products = await Product.find({ storeId: req.storeId }).populate('storeId');
+    } else {
+        products = await Product.find().populate('storeId');
+    }
 
     res.status(200).json({
         status: 'success',
@@ -22,7 +28,7 @@ exports.createProduct = asyncErrorHandler(async (req, res, next) => {
     // The vendor cannot manually pass a fake storeId in the body!
     const newProduct = await Product.create({
         ...req.body,
-        storeId: req.storeId 
+        storeId: req.storeId
     });
 
     res.status(201).json({

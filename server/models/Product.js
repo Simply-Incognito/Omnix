@@ -31,9 +31,13 @@ const productSchema = mongoose.Schema({
         default: 0
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: [true, 'Please provide a category.']
+        type: String,
+        required: [true, 'Please provide a category.'],
+        enum: {
+            values: ['Electronics', 'Clothing', 'Home Goods', 'Beauty', 'Sports', 'Toys', 'Books', 'Other'],
+            message: '{VALUE} is not a valid category.'
+        },
+        default: 'Other'
     },
     ratingsAverage: {
         type: Number,
@@ -50,6 +54,9 @@ const productSchema = mongoose.Schema({
         default: 0
     }
 });
+
+// Prevent duplicate product names WITHIN THE SAME STORE
+productSchema.index({ storeId: 1, name: 1 }, { unique: true });
 
 const Product = mongoose.model('Product', productSchema);
 
