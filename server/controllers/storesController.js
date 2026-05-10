@@ -58,24 +58,20 @@ exports.addStaff = asyncErrorHandler(async (req, res, next) => {
 exports.getStores = asyncErrorHandler(async (req, res, next) => {
     let filteredStores;
 
-    // Only vendor_admin can see their own store
-    if (req.user.role === 'vendor_admin') {
-        filteredStores = await Store.find({ owner: req.user.id });
-    }
 
-    if (req.user.role === 'staff') {
-        filteredStores = await Store.find({ _id: req.user.employedAtStoreId});
-    }
+    switch (req.user.role) {
+        // Only vendor_admin can see their own store
+        case 'vendor_admin': filteredStores = await Store.find({ owner: req.user.id });
 
-    // Super_admin can see all stores
-    if (req.user.role === 'super_admin') {
-        filteredStores = await Store.find();
-    }
+        case 'staff': filteredStores = await Store.find({ owner: req.user.id });
 
-    // Customers can see a public "directory" of all active stores, but we hide sensitive data!
-    if (req.user.role === 'customer') {
-        filteredStores = await Store.find({ status: 'active' })
-            .select('storeName slug settings.themeColor'); // Only return safe, public fields
+        // Super_admin can see all stores
+        case 'super_admin': filteredStores = await Store.find();
+
+        // Customers can see a public "directory" of all active stores, but we hide sensitive data!
+        default:
+            filteredStores = await Store.find({ status: 'active' })
+                .select('storeName slug settings.themeColor'); // Only return safe, public fields
     }
 
     res.status(200).json({
@@ -84,5 +80,69 @@ exports.getStores = asyncErrorHandler(async (req, res, next) => {
             count: filteredStores.length,
             stores: filteredStores
         }
+    });
+});
+
+// Get Store Product
+exports.getStoreProducts = asyncErrorHandler(async (req, res, next) => {
+
+});
+
+// Edit or Update Store
+exports.updateStore = asyncErrorHandler(async (req, res, next) => {
+    // req.body -> storeName, settings
+
+    const store = await Store.findByIdAndUpdate(req.storeId, req.body, {
+        new: true,
+        runValidators: true
+    });
+
+    if (!store) {
+        return next(new AppError("Store not found!", 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Store updated successfully!',
+        data: {
+            store
+        }
+    });
+});
+
+// Get vendor store details for store admin
+exports.getMyStore = asyncErrorHandler(async (req, res, next) => {
+    // Only owner or admin can access (req.user is available because we passed authMiddleware before tenantMiddleware)
+    const store = await Store.findById(req.storeId);
+
+    if (!store) {
+        return next(new AppError("Store not found!", 404));
+    }
+
+    if (req.user.id != store.owner) {
+        return next(new AppError("You are not authorized to access this store!", 403));
+    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            store
+        }
+    });
+});
+
+// Delete (de-activate store) by Admin/Owner
+exports.deactivateStore = asyncErrorHandler(async (req, res, next) => {
+    const store = await Store.findByIdAndUpdate(req.storeId, { status: 'inactive' }, {
+        new: true,
+        runValidators: true
+    });
+
+    if (!store) {
+        return next(new AppError("Store not found!", 404));
+    }
+
+    return res.status(204).json({
+        status: 'success',
+        data: null
     });
 });

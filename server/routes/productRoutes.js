@@ -10,14 +10,34 @@ const router = express.Router();
 
 router.route('/')
     .get(
-        authMiddleware.protect, 
-        tenantMiddleware.attachTenant, 
+        authMiddleware.protect,
         productsController.getAllProducts
     )
     .post(
-        authMiddleware.protect, 
-        tenantMiddleware.attachTenant, 
+        authMiddleware.protect,
+        authMiddleware.restrictTo('vendor_admin', 'staff', 'super_admin'),
+        tenantMiddleware.attachTenant,
         productsController.createProduct
     );
+
+router.route('/:id')
+    .get(
+        authMiddleware.protect,
+        tenantMiddleware.attachTenant,
+        productsController.getProductById
+    )
+    .patch(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('vendor_admin', 'super_admin'),
+        tenantMiddleware.attachTenant,
+        productsController.getAllProducts
+    )
+    .delete(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('vendor_admin', 'super_admin'),
+        tenantMiddleware.attachTenant,
+        productsController.deleteProductById
+    );
+
 
 module.exports = router;
