@@ -146,3 +146,27 @@ exports.deactivateStore = asyncErrorHandler(async (req, res, next) => {
         data: null
     });
 });
+
+// Store Analytics (super_admin, vendor_admin)
+exports.storeAnalytics = asyncErrorHandler(async (req, res, next) => {
+    const stats = await Product.aggregate([
+        {
+            $match: { storeId: req.storeId }
+        },
+        {
+            $group: {
+                _id: '$storeId',
+                totalProducts: { $sum: 1 },
+                totalStock: { $sum: '$stockQuantity' },
+                totalRevenue: { $sum: { $multiply: ['$price', '$stockQuantity'] } }
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            stats
+        }
+    });
+});
