@@ -177,6 +177,8 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
 
     const { storeId, items } = req.body;
 
+
+
     if (!items || !Array.isArray(items) || items.length === 0) {
         return next(new AppError('Please provide at least one item.', 400));
     }
@@ -190,6 +192,14 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
         if (product.storeId.toString() !== storeId.toString()) {
             return next(new AppError('Product does not belong to this store!', 400));
         }
+
+        // Check if product is in stock
+        if (product.quantity < item.quantity) {
+            return next(new AppError(`${product.name} is out of stock!`, 400));
+        }
+        // Decrease product quantity
+        product.quantity -= item.quantity;
+        await product.save();
         item.price = product.price; // capture price at time of order
     }
 

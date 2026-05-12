@@ -19,9 +19,6 @@ const filterReqObj = (allowedFields, reqObj) => {
     return filteredReqObj;
 }
 
-
-
-
 exports.getAllProducts = asyncErrorHandler(async (req, res, next) => {
     const products = await Product.find().populate('storeId');
 

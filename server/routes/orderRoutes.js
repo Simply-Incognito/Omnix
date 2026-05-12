@@ -27,7 +27,7 @@ router.route('/status/:id')
         authMiddleware.protect,
         tenantMiddleware.attachTenant,
         ordersController.updateOrderStatus
-    )
+    );
 
 router.route('/:id')
     .get(
@@ -40,10 +40,10 @@ router.route('/:id')
         tenantMiddleware.attachTenant,
         ordersController.updateOrder
     )
-// .delete(
-//     authMiddleware.protect,
-//     tenantMiddleware.attachTenant,
-//     ordersController.deleteOrder
-// );
+.delete(
+    authMiddleware.protect,
+    tenantMiddleware.attachTenant,
+    ordersController.deleteOrder
+);
 
 module.exports = router;
