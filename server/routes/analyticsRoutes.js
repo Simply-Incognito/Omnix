@@ -3,7 +3,7 @@
 const router = require('express').Router();
 
 const analyticsController = require(`${__dirname}/../controllers/analyticsController`);
-const authMiddleware = require(`${__dirname}/../middlewares/authMiddleware`);
+const authMiddleware = require(`${__dirname}/../middleware/authMiddleware`);
 
 
 
@@ -11,7 +11,7 @@ const authMiddleware = require(`${__dirname}/../middlewares/authMiddleware`);
 router.route('/revenue')
     .get(
         authMiddleware.protect,
-        authMiddleware.restrictTo('super-admin'),
+        authMiddleware.restrictTo('super_admin'),
         analyticsController.getTotalRevenuePerStore
     );
     

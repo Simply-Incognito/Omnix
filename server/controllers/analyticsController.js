@@ -17,17 +17,44 @@ exports.getTotalRevenuePerStore = asyncErrorHandler(async (req, res, next) => {
     const revenueStats = await Order.aggregate([
         {
             $match: {
-                status: "Delivered"
+                status: "pending"
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                storeName: 1,
+                totalAmount: 1
             }
         },
         {
             $group: {
-                _id: "$store",
+                _id: null,
                 totalRevenue: { $sum: "$totalAmount" }
             }
+        },
+        {
+            $sort: { totalRevenue: -1 }
         }
     ]);
 
+    console.log(revenueStats)
 
 
+
+    const storeNames = await Store.find().select("storeName");
+
+    console.log(storeNames)
+
+    const revenueWithNames = revenueStats.map(r => ({
+        _id: storeNames.find(s => s.storeName === r.storeName),
+        totalRevenue: r.totalRevenue
+    }));
+
+    console.log(revenueWithNames)
+
+    res.status(200).json({
+        status: "success",
+        data: { revenueWithNames }
+    });
 });
