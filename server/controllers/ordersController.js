@@ -1,4 +1,5 @@
 "use strict";
+const mongoose = require('mongoose');
 
 const asyncErrorHandler = require(`${__dirname}/../Utils/asyncErrorHandler`);
 const AppError = require(`${__dirname}/../Utils/AppError`);
@@ -175,63 +176,65 @@ exports.updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
 exports.createOrder = asyncErrorHandler(async (req, res, next) => {
     const customerId = req.user.id;
 
-    const { storeId, items } = req.body;
-
-    if (!storeId) {
-        return next(new AppError('Please provide a store ID.', 400));
-    }
+    // storeId is optional in body – can be inferred from the first product
+    let { storeId, items } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
         return next(new AppError('Please provide at least one item.', 400));
     }
 
-    // Create session
+    // Create a session for transactions
     const session = await mongoose.startSession();
-    session.startTransaction();
 
     try {
-
-        session.withTransaction(async () => {
+        // startTransaction, commit, and abort handled automatically by withTransaction
+        await session.withTransaction(async () => {
 
             // Check if products exist and belong to the requested store
             for (const item of items) {
-                const product = await Product.findById(item.productId);
+                const product = await Product.findById(item.productId).session(session);
                 if (!product) {
                     throw new AppError('Product not found!', 404);
                 }
+
+                // Infer storeId from first product if not provided
+                if (!storeId) {
+                    storeId = product.storeId;
+                }
+
                 if (product.storeId.toString() !== storeId.toString()) {
                     throw new AppError('Product does not belong to this store!', 400);
                 }
 
                 // Check if product is in stock
                 if (product.quantity < item.quantity) {
-                    throw new AppError(`${product.name} is out of stock!`, 400)
+                    throw new AppError(`${product.name} is out of stock!`, 400);
                 }
+
                 // Decrease product quantity
                 product.quantity -= item.quantity;
-                await product.save();
+                await product.save({ session });
+
                 item.price = product.price; // capture price at time of order
             }
 
-            const order = await Order.create({
+            // Order.create with a session requires docs as an array
+            const [order] = await Order.create([{
                 storeId,
                 customerId,
                 items,
                 totalAmount: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
                 status: 'pending',
                 orderDate: new Date()
-            }, { session });
+            }], { session });
 
             res.status(201).json({
                 status: 'success',
                 data: order
             });
-
         });
 
-
     } catch (error) {
-        await session.abortTransaction();
         return next(error);
     } finally {
         session.endSession();
@@ -242,7 +245,7 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
 // UPDATE ORDER  (full control for vendor_admin and super_admin)
 // ════════════════════════════════════════════════════════════════════════════════
 exports.updateOrder = asyncErrorHandler(async (req, res, next) => {
-    const { role, id: userId, employedAtStoreId } = req.user;
+    const { role, id: userId } = req.user;
 
     if (!['super_admin', 'vendor_admin'].includes(role)) {
         return next(new AppError('You are not allowed to update orders.', 403));
