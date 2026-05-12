@@ -40,12 +40,13 @@ app.use('/api', rateLimiter);
 const authRouter = require(`${__dirname}/routes/authRoutes`);
 const storeRouter = require(`${__dirname}/routes/storeRoutes`);
 const productRouter = require(`${__dirname}/routes/productRoutes`);
+const orderRouter = require(`${__dirname}/routes/orderRoutes`);
 
 app.use('/api/v1/auth', authRouter);
 //app.use('/api/v1/users', userRouter);
 app.use('/api/v1/stores', storeRouter);
 app.use('/api/v1/products', productRouter);
-//app.use('/api/v1/orders', orderRouter);
+app.use('/api/v1/orders', orderRouter);
 //app.use('/api/v1/payments', paymentRouter);
 //app.use('/api/v1/analytics', analyticsRouter);
 

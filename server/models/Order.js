@@ -11,7 +11,7 @@ const orderSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    items: [{
+    item: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Product'
@@ -37,6 +37,10 @@ const orderSchema = mongoose.Schema({
     },
     orderDate: Date
 });
+
+
+
+
 
 const Order = mongoose.model('Order', orderSchema);
 

@@ -23,7 +23,7 @@ const filterReqObj = (allowedFields, reqObj) => {
 
 
 exports.getAllProducts = asyncErrorHandler(async (req, res, next) => {
-    const products = products = await Product.find().populate('storeId');
+    const products = await Product.find().populate('storeId');
 
     res.status(200).json({
         status: 'success',
@@ -104,7 +104,6 @@ exports.updateProduct = asyncErrorHandler(async (req, res, next) => {
 });
 
 // Delete Product(vendor_admin + super_admin)
-
 exports.deleteProductById = asyncErrorHandler(async (req, res, next) => {
 
     var deletedProduct;
