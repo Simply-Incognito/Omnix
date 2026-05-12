@@ -18,7 +18,6 @@ router.route('/')
     )
     .post(
         authMiddleware.protect,
-        tenantMiddleware.attachTenant,
         ordersController.createOrder
     );
 

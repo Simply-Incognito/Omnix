@@ -177,45 +177,65 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
 
     const { storeId, items } = req.body;
 
-
+    if (!storeId) {
+        return next(new AppError('Please provide a store ID.', 400));
+    }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
         return next(new AppError('Please provide at least one item.', 400));
     }
 
-    // Check if products exist and belong to the requested store
-    for (const item of items) {
-        const product = await Product.findById(item.productId);
-        if (!product) {
-            return next(new AppError('Product not found!', 404));
-        }
-        if (product.storeId.toString() !== storeId.toString()) {
-            return next(new AppError('Product does not belong to this store!', 400));
-        }
+    // Create session
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-        // Check if product is in stock
-        if (product.quantity < item.quantity) {
-            return next(new AppError(`${product.name} is out of stock!`, 400));
-        }
-        // Decrease product quantity
-        product.quantity -= item.quantity;
-        await product.save();
-        item.price = product.price; // capture price at time of order
+    try {
+
+        session.withTransaction(async () => {
+
+            // Check if products exist and belong to the requested store
+            for (const item of items) {
+                const product = await Product.findById(item.productId);
+                if (!product) {
+                    throw new AppError('Product not found!', 404);
+                }
+                if (product.storeId.toString() !== storeId.toString()) {
+                    throw new AppError('Product does not belong to this store!', 400);
+                }
+
+                // Check if product is in stock
+                if (product.quantity < item.quantity) {
+                    throw new AppError(`${product.name} is out of stock!`, 400)
+                }
+                // Decrease product quantity
+                product.quantity -= item.quantity;
+                await product.save();
+                item.price = product.price; // capture price at time of order
+            }
+
+            const order = await Order.create({
+                storeId,
+                customerId,
+                items,
+                totalAmount: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+                status: 'pending',
+                orderDate: new Date()
+            }, { session });
+
+            res.status(201).json({
+                status: 'success',
+                data: order
+            });
+
+        });
+
+
+    } catch (error) {
+        await session.abortTransaction();
+        return next(error);
+    } finally {
+        session.endSession();
     }
-
-    const order = await Order.create({
-        storeId,
-        customerId,
-        items,
-        totalAmount: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
-        status: 'pending',
-        orderDate: new Date()
-    });
-
-    res.status(201).json({
-        status: 'success',
-        data: order
-    });
 });
 
 // ════════════════════════════════════════════════════════════════════════════════
