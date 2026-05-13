@@ -14,9 +14,18 @@ router.route('/revenue')
         authMiddleware.restrictTo('super_admin'),
         analyticsController.getTotalRevenuePerStore
     );
-    
-// router.route('/top-products').get(analyticsController.getTopSellingProducts);
-// router.route('/new-customers').get(analyticsController.getNewCustomerSignupsThisMonth);
+
+router.route('/top-products')
+    .get(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('super_admin'),
+        analyticsController.getTopSellingProducts
+    );
+router.route('/new-customers').get(
+    authMiddleware.protect,
+    authMiddleware.restrictTo('super_admin'),
+    analyticsController.getNewCustomerSignupsThisMonth
+);
 
 
 module.exports = router;

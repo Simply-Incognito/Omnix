@@ -66,8 +66,9 @@ const userSchema = mongoose.Schema({
     },
     passwordResetToken: String,
     passwordChangedAt: Date,
-    passwordResetTokenExpires: Date
-});
+    passwordResetTokenExpires: Date,
+    createdAt: Date
+}, { timeStamp: true });
 
 // Hash Password
 userSchema.pre('save', async function () {

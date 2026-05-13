@@ -58,21 +58,15 @@ exports.addStaff = asyncErrorHandler(async (req, res, next) => {
 exports.getStores = asyncErrorHandler(async (req, res, next) => {
     let filteredStores;
 
+    if (req.user.role === 'vendor_admin') filteredStores = await Store.find({ owner: req.user.id });
 
-    switch (req.user.role) {
-        // Only vendor_admin can see their own store
-        case 'vendor_admin': filteredStores = await Store.find({ owner: req.user.id });
+    if (req.user.role === 'staff') filteredStores = await Store.find({ _id: req.user.employedAtStoreId });
 
-        case 'staff': filteredStores = await Store.find({ owner: req.user.id });
+    if (req.user.role === 'customer') filteredStores = await Store.find({ status: 'active' })
+        .select('storeName slug settings.themeColor'); // Only return safe, public fields
 
-        // Super_admin can see all stores
-        case 'super_admin': filteredStores = await Store.find();
+    if (req.user.role === 'super_admin') filteredStores = await Store.find();
 
-        // Customers can see a public "directory" of all active stores, but we hide sensitive data!
-        default:
-            filteredStores = await Store.find({ status: 'active' })
-                .select('storeName slug settings.themeColor'); // Only return safe, public fields
-    }
 
     res.status(200).json({
         success: true,
