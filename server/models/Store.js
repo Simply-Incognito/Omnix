@@ -9,16 +9,20 @@ const storeSchema = mongoose.Schema({
     storeName: {
         type: String,
         required: [true, "Please provide a store name."],
-        trim: true
+        trim: true,
+        unique: true
     },
     slug: {
-        type: String
+        type: String,
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "Please provide owner."]
     },
+    products: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Products'}
+    ],
     status: {
         type: String,
         enum: ['active', 'inactive', 'suspended'],

@@ -4,6 +4,7 @@ const asyncErrorHandler = require(`${__dirname}/../Utils/asyncErrorHandler`);
 const AppError = require(`${__dirname}/../Utils/AppError`);
 
 const Product = require(`${__dirname}/../models/Product`);
+const Store = require(`${__dirname}/../models/Store`);
 
 
 const filterReqObj = (allowedFields, reqObj) => {
@@ -52,6 +53,14 @@ exports.createProduct = asyncErrorHandler(async (req, res, next) => {
         ...req.body,
         storeId: req.storeId
     });
+
+    // Add Product to Store
+    const store = await Store.findById(req.storeId).select('products');
+
+    store.products.push(newProduct._id);
+
+    store.save({ runValidators: false });
+
 
     res.status(201).json({
         success: true,

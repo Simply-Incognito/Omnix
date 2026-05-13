@@ -63,7 +63,7 @@ exports.getStores = asyncErrorHandler(async (req, res, next) => {
     if (req.user.role === 'staff') filteredStores = await Store.find({ _id: req.user.employedAtStoreId });
 
     if (req.user.role === 'customer') filteredStores = await Store.find({ status: 'active' })
-        .select('storeName slug settings.themeColor'); // Only return safe, public fields
+        .select('storeName slug settings.themeColor products'); // Only return safe, public fields
 
     if (req.user.role === 'super_admin') filteredStores = await Store.find();
 
