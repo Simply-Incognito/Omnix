@@ -2,258 +2,109 @@
   <br />
   <h1>🚀 Omnix</h1>
   <p>
-    <strong>A scalable multi-tenant e-commerce admin dashboard</strong>
+    <strong>A Scalable Multi-Tenant E-commerce Infrastructure</strong>
   </p>
   <p>
-    Manage vendors, stores, products, orders, analytics, and platform-wide operations from a single unified control center.
-  </p>
-  <p>
-    Inspired by modern SaaS commerce platforms and enterprise-grade marketplace systems.
+    A robust backend foundation for a unified commerce control center. Manage vendors, stores, products, orders, and analytics across an entire ecosystem.
   </p>
   <br />
-  
+
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-  [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)]()
-  [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)]()
   [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)]()
+  [![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)]()
   [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat&logo=mongodb&logoColor=white)]()
 </div>
 
-<br />
+---
 
 ## 🌟 Overview
 
-**Omnix** is a modern admin platform designed for multi-vendor and multi-tenant e-commerce ecosystems. Built with scalability, modularity, and clean UI architecture in mind, it enables platform administrators to:
-
-- 🏢 **Manage** multiple vendors and storefronts
-- 📈 **Monitor** sales and platform performance
-- 📦 **Handle** products, inventory, and categories
-- 🚚 **Track** orders and customer activity
-- 💸 **Process** payouts and vendor approvals
-- ⚙️ **Configure** tenant-specific settings
-- 📊 **Visualize** business analytics in real-time
-
----
+**Omnix** is an enterprise-grade multi-tenant e-commerce backend. It uses a **Shared Database, Isolated Logic** approach to handle multiple storefronts within a single platform. Whether you are a platform owner (Super Admin), a shop owner (Vendor), or a customer, Omnix provides a secure and performant environment.
 
 ## ✨ Features
 
 ### 🏢 Multi-Tenant Architecture
-- **Tenant isolation** ensuring data security and privacy.
-- **Separate vendor/store management** for individual sellers.
-- **Centralized platform administration** for top-level control.
-- **Role-based access control (RBAC)** for fine-grained permissions.
+- **Header-Based Tenancy**: Uses `x-tenant-id` or `x-tenant-slug` for storefront context.
+- **Data Isolation**: Vendors can only access and manage products/orders belonging to their store.
+- **Dynamic Context**: Middleware automatically injects store information into requests based on the user's role or the requested tenant.
 
-### 👥 Vendor Management
-- Streamlined **Vendor onboarding & approval** workflows.
-- Detailed **Vendor performance tracking** and analytics.
-- **Store status management** (active, suspended, etc.).
+### 📊 Advanced Analytics
+- **Super Admin Dashboard**: Global revenue per store, platform-wide user growth, and top-performing products.
+- **Vendor Dashboard**: Store-specific revenue tracking, inventory value, and real-time sales metrics.
+- **Optimized Aggregations**: Uses MongoDB `$lookup` and `$group` pipelines for high-performance reporting.
 
-### 🛍️ Product Management
-- Intuitive interface to **Create, edit, and delete products**.
-- Organized **Product categories & tags**.
-- Real-time **Inventory tracking**.
-- **Bulk product operations** for efficiency.
+### 📦 Commerce Core
+- **Inventory Management**: Automated stock subtraction during order creation with transactional safety.
+- **Order Lifecycle**: Robust state machine for orders (`pending` → `processing` → `shipped` → `delivered`).
+- **Product Engine**: Compound indexing to prevent duplicate product names within the same store.
 
-### 📦 Order Management
-- End-to-end **Order tracking**.
-- Live **Payment status monitoring**.
-- Seamless **Refund & cancellation handling**.
-- Comprehensive **Shipment workflow support**.
-
-### 📊 Dashboard Analytics
-- Comprehensive **Revenue tracking** and **Sales metrics**.
-- In-depth **Vendor growth analytics** and **Customer insights**.
-- **Real-time KPI widgets** for immediate business health checks.
-
-### 🔒 User & Access Management
-- Secure **Admin authentication**.
-- Customizable **Permissions & roles**.
-- Detailed **Activity logs** for auditing.
-- Robust **Session management**.
-
-### 🎨 Modern UI/UX
-- **Clean SaaS-style dashboard** inspired by industry leaders.
-- Fully **Responsive layouts** for all devices.
-- Seamless **Dark/light mode support**.
-- Advanced **Data tables and charts** for complex information.
-- **Modular component architecture** for easy maintenance.
+### 🔒 Security & Performance
+- **JWT & Cookies**: Secure authentication via JSON Web Tokens and HTTP-only cookies.
+- **Rate Limiting**: Protection against brute-force and DDoS attacks.
+- **Security Headers**: Powered by `helmet` for protection against common web vulnerabilities.
+- **Error Handling**: Centralized operational error management with developer and production modes.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **React** & **Next.js**
-- **Tailwind CSS**
-- **TypeScript**
-- **Shadcn/UI**
-- **Recharts**
-
-### Backend
-- **Node.js**
-- **Express.js**
-- **MongoDB** & **Mongoose**
-
-### Authentication & Security
-- **JWT Authentication**
-- **Role-Based Access Control (RBAC)**
-- **Secure API architecture**
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB (Mongoose ODM)
+- **Security**: Bcrypt.js, Helmet, Express-Rate-Limit, Cookie-Parser
+- **Utilities**: Slugify, Validator, JWT
 
 ---
 
 ## 📁 Folder Structure
 
 ```bash
-omnix/
-│
-├── client/          # Frontend Next.js application
-│   ├── components/  # Reusable UI components
-│   ├── pages/       # Application routes/pages
-│   ├── layouts/     # Page layout wrappers
-│   ├── hooks/       # Custom React hooks
-│   ├── services/    # API calls and external integrations
-│   ├── store/       # Global state management
-│   └── utils/       # Helper functions
-│
-├── server/          # Backend Node.js/Express application
-│   ├── controllers/ # Request handlers
-│   ├── routes/      # API route definitions
-│   ├── models/      # Mongoose database schemas
-│   ├── middleware/  # Express middleware (auth, error handling)
-│   ├── services/    # Business logic
-│   └── config/      # Environment and database configuration
-│
-├── shared/          # Shared types, constants, or utilities
-├── docs/            # Additional documentation
-└── README.md        # You are here!
+server/
+├── config/             # Database and environment configuration
+├── controllers/        # Request handlers & Business Logic
+├── middleware/         # Auth, Tenant, and Error-handling middlewares
+├── models/             # Mongoose schemas (Store, Product, Order, User)
+├── routes/             # Scoped API route definitions
+├── utils/              # Helper functions (AppError, asyncErrorHandler)
+└── app.js              # Express application setup
 ```
-
----
-
-## 🧩 Core Modules
-
-| Module | Description |
-| :--- | :--- |
-| 📊 **Dashboard** | Overview metrics & analytics |
-| 👥 **Vendors** | Manage all marketplace vendors |
-| 🏪 **Stores** | Multi-store administration |
-| 📦 **Products** | Product & inventory management |
-| 🚚 **Orders** | Order lifecycle management |
-| 👤 **Customers** | Customer insights & activities |
-| 💰 **Finance** | Revenue, payouts & transactions |
-| 📈 **Analytics** | Charts, KPIs & reports |
-| ⚙️ **Settings** | Platform configurations |
-
----
-
-## 🎯 UI Design Goals
-
-Omnix focuses on delivering an **Enterprise-grade experience**:
-- Simplicity and fast navigation.
-- Scalability to handle massive data sets.
-- Clean, consistent design system with exceptional data visualization.
-- The interface takes inspiration from modern SaaS dashboards and commerce management systems found across the e-commerce ecosystem.
-
-### 🖼️ Screens Included
-- Dashboard Overview
-- Vendor Management
-- Product Listings
-- Order Tracking
-- Finance Analytics
-- Customer Insights
-- Platform Settings
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-username/omnix.git
-```
-
-### 2. Install dependencies
-
-```bash
-# Install Client Dependencies
-cd client
-npm install
-
-# Install Server Dependencies
-cd ../server
-npm install
-```
-
-### 3. Environment Variables
-
-Create a `.env` file in the `server` directory (and optionally `client` depending on setup):
-
+### 1. Environment Configuration
+Create a `server/config/config.env` file:
 ```env
-PORT=5000
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_secret_key
-CLIENT_URL=http://localhost:3000
+PORT = 2003
+LOCAL_DB_URI = mongodb://127.0.0.1/omnix_db
+NODE_ENV = development
+SECRET_KEY = 'your_long_secure_secret_string'
+JWT_TOKEN_EXPIRES_IN = '24h'
 ```
 
-### 4. Run the project
-
+### 2. Installation
 ```bash
-# Terminal 1: Run Frontend
-cd client
-npm run dev
-
-# Terminal 2: Run Backend
 cd server
-npm run server
+npm install
+```
+
+### 3. Running the Server
+```bash
+# Development mode (with nodemon)
+npm start
 ```
 
 ---
 
-## 🛣️ Future Improvements
-
-- [ ] 🤖 AI-powered analytics
-- [ ] 🔔 Real-time notifications
-- [ ] 🌍 Multi-language support
-- [ ] ⚡ WebSocket live updates
-- [ ] 💸 Vendor payout automation
-- [ ] 📋 Audit logs
-- [ ] 🏗️ Microservices architecture
-- [ ] 🐳 Docker & Kubernetes deployment
-- [ ] 📑 Advanced reporting system
-
----
-
-## 🎯 Project Goals
-
-Omnix was built to explore and master:
-- Multi-tenant SaaS architecture
-- Scalable dashboard systems
-- Enterprise frontend design
-- Complex state management
-- API-driven applications
-- Modern MERN stack development
-
----
-
-## 🤝 Contributing
-
-Contributions, ideas, and improvements are always welcome!
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+## 🛣️ Roadmap
+- [ ] **Frontend**: Build a premium React/Next.js dashboard with Glassmorphism aesthetics.
+- [ ] **Payments**: Integrate Stripe/Paystack for automated checkout and vendor payouts.
+- [ ] **Notifications**: Implement real-time order updates via WebSockets.
+- [ ] **AI Insights**: Predictive analytics for inventory restocking.
 
 ---
 
 <div align="center">
-  <p>Built with ❤️ using the MERN stack and modern SaaS design principles by <strong>Simply_</strong>.</p>
+  <p>Built with ❤️ for the future of multi-tenant commerce by <strong>Simply_Incognito</strong>.</p>
 </div>
