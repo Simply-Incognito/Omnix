@@ -30,6 +30,16 @@ exports.getAllProducts = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
+exports.getStoreProducts = asyncErrorHandler(async (req, res, next) => {
+    const store = await Store.findById(req.storeId).select('products');
+
+    res.status(200).json({
+        status: 'success',
+        results: store.products.length,
+        data: { products: store.products }
+    });
+});
+
 exports.getProductById = asyncErrorHandler(async (req, res, next) => {
 
     const product = await Product.findById(req.params.id);
@@ -53,14 +63,6 @@ exports.createProduct = asyncErrorHandler(async (req, res, next) => {
         ...req.body,
         storeId: req.storeId
     });
-
-    // Add Product to Store
-    const store = await Store.findById(req.storeId).select('products');
-
-    store.products.push(newProduct._id);
-
-    store.save({ runValidators: false });
-
 
     res.status(201).json({
         success: true,

@@ -20,9 +20,6 @@ const storeSchema = mongoose.Schema({
         ref: 'User',
         required: [true, "Please provide owner."]
     },
-    products: [
-        {type: mongoose.Schema.Types.ObjectId, ref: 'Products'}
-    ],
     status: {
         type: String,
         enum: ['active', 'inactive', 'suspended'],

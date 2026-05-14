@@ -117,5 +117,31 @@ exports.getTopSellingProducts = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.getNewCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next) => {
-    
+    // 1. Get the first day of the current month
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const stats = await User.aggregate([
+        {
+            $match: {
+                role: 'customer',
+                createdAt: { $gte: startOfMonth }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalSignups: { $sum: 1 }
+            }
+        }
+    ]);
+
+    const signupCount = stats.length > 0 ? stats[0].totalSignups : 0;
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            newCustomerSignups: signupCount,
+            month: startOfMonth.toLocaleString('default', { month: 'long' })
+        }
+    });
 });

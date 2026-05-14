@@ -10,7 +10,6 @@ const router = express.Router();
 
 router.route('/')
     .get(
-        authMiddleware.protect,
         productsController.getAllProducts
     )
     .post(
@@ -18,6 +17,14 @@ router.route('/')
         authMiddleware.restrictTo('vendor_admin', 'staff', 'super_admin'),
         tenantMiddleware.attachTenant,
         productsController.createProduct
+    );
+
+router.route('/store')
+    .get(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('vendor_admin', 'staff', 'super_admin'),
+        tenantMiddleware.attachTenant,
+        productsController.getStoreProducts
     );
 
 router.route('/:id')
