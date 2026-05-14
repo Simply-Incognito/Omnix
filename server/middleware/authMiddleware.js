@@ -14,10 +14,10 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
     var token;
 
 
-    if (req.headers.authorization && req.headers.authorization.startsWith("bearer")) {
+    if (req.headers.authorization && req.headers.authorization.toLowerCase().startsWith("bearer")) {
         token = req.headers.authorization.split(' ')[1];
-    } else if (req.cookie && req.cookie.token) {
-        token = req.cookie.token;
+    } else if (req.cookies && req.cookies.token) {
+        token = req.cookies.token;
     }
 
 

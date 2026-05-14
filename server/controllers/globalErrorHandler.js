@@ -50,6 +50,10 @@ const tokenExpiredErrorHandler = (error) => {
     return new AppError("Session Expired! Please login again.", 401);
 }
 
+const invalidTokenErrorHandler = (error) => {
+    return new AppError("Invalid token! Please login again.", 401);
+}
+
 module.exports = (error, req, res, next) => {
 
     error.message = error.message || "Internal Server Error";
@@ -63,6 +67,7 @@ module.exports = (error, req, res, next) => {
     if (error.code === 11000) err = duplicateKeyErrorHandler(error);
     if (error.name === 'ValidationError') err = validationErrorHandler(error);
     if (error.name === 'TokenExpiredError') err = tokenExpiredErrorHandler(error);
+    if (error.name === 'JsonWebTokenError') err = invalidTokenErrorHandler(error);
 
     if (process.env.NODE_ENV === 'development') {
         devError(err, res);

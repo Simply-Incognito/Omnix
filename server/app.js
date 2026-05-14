@@ -3,6 +3,7 @@
 const express = require('express'),
     cors = require('cors'),
     helmet = require('helmet'),
+    cookieParser = require('cookie-parser'),
     rateLimit = require('express-rate-limit');
 
 const AppError = require(`${__dirname}/utils/AppError`);
@@ -17,6 +18,7 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 // CORS configuration - allows frontend from different origin to make requests with credentials
 app.use(cors({
@@ -31,7 +33,7 @@ app.use(helmet());
 
 // Rate Limiting
 const rateLimiter = rateLimit({
-    max: 10,
+    max: 100,
     windowMs: 60000,
     message: "Too many requests made. The owner of this website has blocked you from making any more requests. Try again later"
 });
