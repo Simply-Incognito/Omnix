@@ -56,14 +56,17 @@ exports.addStaff = asyncErrorHandler(async (req, res, next) => {
 
 // View Vendor Store (super_admin, vendor_admin)
 exports.getStores = asyncErrorHandler(async (req, res, next) => {
-    let filteredStores;
+    let filteredStores = [];
 
     if (req.user.role === 'vendor_admin') filteredStores = await Store.find({ owner: req.user.id });
 
     if (req.user.role === 'staff') filteredStores = await Store.find({ _id: req.user.employedAtStoreId });
 
-    if (req.user.role === 'customer') filteredStores = await Store.find({ status: 'active' })
-        .select('storeName slug settings.themeColor products'); // Only return safe, public fields
+    if (req.user.role === 'customer') {
+        filteredStores = await Store.find({ status: 'active' })
+            .select('storeName slug settings.themeColor')
+            .populate('productCount');
+    }
 
     if (req.user.role === 'super_admin') filteredStores = await Store.find();
 
@@ -113,7 +116,7 @@ exports.getMyStore = asyncErrorHandler(async (req, res, next) => {
         return next(new AppError("Store not found!", 404));
     }
 
-    if (req.user.id != store.owner) {
+    if (!store.owner.equals(req.user.id)) {
         return next(new AppError("You are not authorized to access this store!", 403));
     }
     res.status(200).json({
@@ -152,7 +155,7 @@ exports.storeAnalytics = asyncErrorHandler(async (req, res, next) => {
                 _id: '$storeId',
                 totalProducts: { $sum: 1 },
                 totalStock: { $sum: '$stockQuantity' },
-                totalRevenue: { $sum: { $multiply: ['$price', '$stockQuantity'] } }
+                totalInventoryValue: { $sum: { $multiply: ['$price', '$stockQuantity'] } }
             }
         }
     ]);

@@ -50,6 +50,25 @@ storeSchema.pre('save', function () {
     this.slug = slugify(this.storeName, { lower: true, strict: true });
 });
 
+// Virtual populate for products
+storeSchema.virtual('products', {
+    ref: 'Product',
+    foreignField: 'storeId',
+    localField: '_id'
+});
+
+// Virtual for product count
+storeSchema.virtual('productCount', {
+    ref: 'Product',
+    foreignField: 'storeId',
+    localField: '_id',
+    count: true
+});
+
+// Set toJSON and toObject to include virtuals
+storeSchema.set('toJSON', { virtuals: true });
+storeSchema.set('toObject', { virtuals: true });
+
 const Store = mongoose.model('Store', storeSchema);
 
 module.exports = Store;

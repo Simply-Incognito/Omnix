@@ -31,12 +31,12 @@ exports.getAllProducts = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.getStoreProducts = asyncErrorHandler(async (req, res, next) => {
-    const store = await Store.findById(req.storeId).select('products');
+    const products = await Product.find({ storeId: req.storeId });
 
     res.status(200).json({
         status: 'success',
-        results: store.products.length,
-        data: { products: store.products }
+        results: products.length,
+        data: { products }
     });
 });
 
@@ -72,57 +72,45 @@ exports.createProduct = asyncErrorHandler(async (req, res, next) => {
 
 // Update Product (vendor_admin, super_admin)
 exports.updateProduct = asyncErrorHandler(async (req, res, next) => {
-    // name, description, photo, price, stockQuantity, category, priceDiscount
     const filteredReqObj = filterReqObj(
-        [
-            "name",
-            "description",
-            "photo",
-            "price",
-            "stockQuantity",
-            "category",
-            "priceDiscount"
-        ],
+        ["name", "description", "photo", "price", "stockQuantity", "category", "priceDiscount"],
         req.body
     );
 
-    var updatedProduct;
+    let product;
 
-    // Check if Product exist in the vendor's store
     if (req.user.role === 'vendor_admin') {
-        updatedProduct = await Product.findOne({ storeId: req.storeId, _id: req.params.id });
-
-        if (!updatedProduct) {
-            return next(new AppError("Product not found!", 404));
-        }
-
+        product = await Product.findOne({ storeId: req.storeId, _id: req.params.id });
+    } else if (req.user.role === 'super_admin') {
+        product = await Product.findById(req.params.id);
     }
 
-    Object.keys(filteredReqObj).forEach(field => {
-        updatedProduct[field] = filteredReqObj[field];
-    });
+    if (!product) {
+        return next(new AppError("Product not found!", 404));
+    }
 
-    await updatedProduct.save();
+    Object.assign(product, filteredReqObj);
+    await product.save();
 
     res.status(200).json({
         status: 'success',
-        message: "Product updated succesfully.",
-        data: { product: updatedProduct }
+        message: "Product updated successfully.",
+        data: { product }
     });
 });
 
 // Delete Product(vendor_admin + super_admin)
 exports.deleteProductById = asyncErrorHandler(async (req, res, next) => {
+    let product;
 
-    var deletedProduct;
-
-    // Check if Product exist in the vendor's store
     if (req.user.role === 'vendor_admin') {
-        deletedProduct = await Product.findOne({ storeId: req.storeId, _id: req.params.id });
+        product = await Product.findOne({ storeId: req.storeId, _id: req.params.id });
+    } else if (req.user.role === 'super_admin') {
+        product = await Product.findById(req.params.id);
+    }
 
-        if (!deletedProduct) {
-            return next(new AppError("Product not found!", 404));
-        }
+    if (!product) {
+        return next(new AppError("Product not found!", 404));
     }
 
     await Product.findByIdAndDelete(req.params.id);

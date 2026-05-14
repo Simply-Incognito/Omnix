@@ -13,6 +13,8 @@ const globalErrorHandler = require(`${__dirname}/controllers/globalErrorHandler`
 // Express App
 const app = express();
 
+
+
 // Middlewares
 app.use(express.json());
 

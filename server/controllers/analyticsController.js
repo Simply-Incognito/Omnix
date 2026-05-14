@@ -14,28 +14,9 @@ const Product = require(`${__dirname}/../models/Product`);
 
 //  ----------------- SUPER_ADMIN ONLY --------------------------  //
 exports.getTotalRevenuePerStore = asyncErrorHandler(async (req, res, next) => {
-
     const revenueStats = await Order.aggregate([
         {
-            $match: {
-                status: "pending"
-            }
-        },
-        {
-            $lookup: {
-                from: "stores",
-                localField: "storeId",
-                foreignField: "_id",
-                as: "storeInfo"
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                storeId: 1,
-                totalAmount: 1,
-                items: 1
-            }
+            $match: { status: "delivered" }
         },
         {
             $group: {
@@ -44,76 +25,79 @@ exports.getTotalRevenuePerStore = asyncErrorHandler(async (req, res, next) => {
             }
         },
         {
-            $sort: {
-                totalRevenue: 1
+            $lookup: {
+                from: "stores",
+                localField: "_id",
+                foreignField: "_id",
+                as: "storeInfo"
             }
+        },
+        {
+            $unwind: "$storeInfo"
+        },
+        {
+            $project: {
+                _id: 1,
+                totalRevenue: 1,
+                storeName: "$storeInfo.storeName"
+            }
+        },
+        {
+            $sort: { totalRevenue: -1 }
         }
     ]);
 
-    const storeNames = await Store.find().select("storeName");
-
-
-    const revenueWithNames = revenueStats.map(r => ({
-        _id: (storeNames.find(s => (s._id).equals(r._id)))._id,
-        totalRevenue: r.totalRevenue
-    }));
-
     res.status(200).json({
         status: "success",
-        data: { revenueWithNames }
+        data: { revenueStats }
     });
 });
 
 
 exports.getTopSellingProducts = asyncErrorHandler(async (req, res, next) => {
-
     const topProducts = await Order.aggregate([
         {
-            $match: {
-                status: "pending"
-            }
-        }, {
+            $match: { status: "delivered" }
+        },
+        {
             $unwind: "$items"
         },
         {
-            $project: {
-                _id: "$items.productId",
-                quantity: "$items.quantity"
-            }
-        },
-        {
             $group: {
-                _id: "$_id",
-                totalQuanity: {
-                    $sum: "$quantity"
-                }
+                _id: "$items.productId",
+                totalQuantitySold: { $sum: "$items.quantity" }
             }
         },
         {
-            $sort: {
-                totalQuanity: -1
+            $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productInfo"
             }
         },
         {
-            $limit: 10 // Return best 10 top products
+            $unwind: "$productInfo"
+        },
+        {
+            $project: {
+                _id: 1,
+                totalQuantitySold: 1,
+                productName: "$productInfo.name"
+            }
+        },
+        {
+            $sort: { totalQuantitySold: -1 }
+        },
+        {
+            $limit: 10
         }
     ]);
 
-    const productNames = await Product.find().select('name');
-
-    const topProductsWithName = topProducts.map(p => ({
-        _id: productNames.find(n => (p._id).equals(n._id))._id,
-        productName: productNames.find(n => (p._id).equals(n._id)).name,
-        totalQuantitySold: p.totalQuanity
-    }))
-
-    console.log(topProductsWithName)
-
     res.status(200).json({
         status: 'success',
-        data: { topProductsWithName }
-    })
-
+        data: { topProducts }
+    });
 });
 
 exports.getNewCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next) => {
@@ -146,6 +130,41 @@ exports.getNewCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next
     });
 });
 
+exports.getPlatformOverview = asyncErrorHandler(async (req, res, next) => {
+
+    const totalRevenue = await Order.aggregate([
+        {
+            $match: {
+                status: "delivered"
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalRevenue: { $sum: "$totalAmount" }
+            }
+        }
+    ]);
+
+    const totalOrders = await Order.countDocuments({ status: "delivered" });
+
+    const totalCustomers = await User.countDocuments({ role: "customer" });
+
+    const totalVendors = await User.countDocuments({ role: "vendor" });
+
+    const totalStores = await Store.countDocuments({});
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0,
+            totalOrders,
+            totalCustomers,
+            totalVendors,
+            totalStores
+        }
+    });
+});
 
 // ----------------- VENDOR ONLY --------------------------  //
 
@@ -157,7 +176,7 @@ exports.getVendorRevenue = asyncErrorHandler(async (req, res, next) => {
         {
             $match: {
                 storeId: storeId,
-                status: "pending"
+                status: "delivered"
             }
         },
         {
@@ -178,84 +197,52 @@ exports.getVendorRevenue = asyncErrorHandler(async (req, res, next) => {
 
 
 exports.getVendorTopSellingProducts = asyncErrorHandler(async (req, res, next) => {
-
     const storeId = req.storeId;
 
     const topProducts = await Order.aggregate([
         {
             $match: {
                 storeId: storeId,
-                status: "pending"
+                status: "delivered"
             }
-        }, {
+        },
+        {
             $unwind: "$items"
         },
         {
-            $project: {
-                _id: "$items.productId",
-                quantity: "$items.quantity"
-            }
-        },
-        {
             $group: {
-                _id: "$_id",
-                totalQuanity: {
-                    $sum: "$quantity"
-                }
+                _id: "$items.productId",
+                totalQuantitySold: { $sum: "$items.quantity" }
             }
         },
         {
-            $sort: {
-                totalQuanity: -1
+            $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productInfo"
             }
+        },
+        {
+            $unwind: "$productInfo"
+        },
+        {
+            $project: {
+                _id: 1,
+                totalQuantitySold: 1,
+                productName: "$productInfo.name"
+            }
+        },
+        {
+            $sort: { totalQuantitySold: -1 }
         },
         {
             $limit: 10
         }
     ]);
 
-    const productNames = await Product.find().select('name');
-
-    const topProductsWithName = topProducts.map(p => ({
-        _id: productNames.find(n => (p._id).equals(n._id))._id,
-        productName: productNames.find(n => (p._id).equals(n._id)).name,
-        totalQuantitySold: p.totalQuanity
-    }))
-
     res.status(200).json({
         status: 'success',
-        data: { topProductsWithName }
-    })
-});
-
-exports.getNewStoreCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next) => {
-    const storeId = req.storeId;
-
-    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-
-    const stats = await User.aggregate([
-        {
-            $match: {
-                role: 'customer',
-                storeId: storeId,
-                createdAt: { $gte: startOfMonth }
-            }
-        },
-        {
-            $group: {
-                _id: null,
-                totalSignups: { $sum: 1 }
-            }
-        }
-    ]);
-
-    const signupCount = stats.length > 0 ? stats[0].totalSignups : 0;
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            newCustomerSignups: signupCount,
-            month: startOfMonth.toLocaleString('default', { month: 'long' })
-        }
+        data: { topProducts }
     });
 });

@@ -32,6 +32,13 @@ router.route('/my-store')
         storesController.getMyStore
     );
 
+router.route('/analytics')
+    .get(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('vendor_admin', 'super_admin'),
+        tenantMiddleware.attachTenant,
+        storesController.storeAnalytics
+    );
 
 router.route('/staff')
     .post(

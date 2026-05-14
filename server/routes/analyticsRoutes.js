@@ -30,6 +30,12 @@ router.route('/new-customers').get(
     analyticsController.getNewCustomerSignupsThisMonth
 );
 
+router.route('/overview')
+    .get(
+        authMiddleware.protect,
+        authMiddleware.restrictTo('super_admin'),
+        analyticsController.getPlatformOverview
+    );
 
 // ----------------- VENDOR ROUTES --------------------------  //
 
@@ -49,11 +55,5 @@ router.route('/vendor/top-products')
         analyticsController.getVendorTopSellingProducts
     );
 
-router.route('/vendor/new-customers').get(
-    authMiddleware.protect,
-    authMiddleware.restrictTo('vendor_admin'),
-    tenantMiddleware.attachTenant,
-    analyticsController.getNewStoreCustomerSignupsThisMonth
-);
 
 module.exports = router;

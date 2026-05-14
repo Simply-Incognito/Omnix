@@ -212,7 +212,7 @@ exports.createOrder = asyncErrorHandler(async (req, res, next) => {
                 }
 
                 // Decrease product quantity
-                product.quantity -= item.quantity;
+                product.stockQuantity -= item.quantity;
                 await product.save({ session });
 
                 item.price = product.price; // capture price at time of order
