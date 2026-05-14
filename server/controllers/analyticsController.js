@@ -145,3 +145,117 @@ exports.getNewCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next
         }
     });
 });
+
+
+// ----------------- VENDOR ONLY --------------------------  //
+
+exports.getVendorRevenue = asyncErrorHandler(async (req, res, next) => {
+
+    const storeId = req.storeId;
+
+    const revenue = await Order.aggregate([
+        {
+            $match: {
+                storeId: storeId,
+                status: "pending"
+            }
+        },
+        {
+            $group: {
+                _id: storeId,
+                totalRevenue: { $sum: "$totalAmount" }
+            }
+        }
+    ]);
+
+    const totalRevenue = revenue.length > 0 ? revenue[0].totalRevenue : 0;
+
+    res.status(200).json({
+        success: true,
+        data: { totalRevenue }
+    });
+});
+
+
+exports.getVendorTopSellingProducts = asyncErrorHandler(async (req, res, next) => {
+
+    const storeId = req.storeId;
+
+    const topProducts = await Order.aggregate([
+        {
+            $match: {
+                storeId: storeId,
+                status: "pending"
+            }
+        }, {
+            $unwind: "$items"
+        },
+        {
+            $project: {
+                _id: "$items.productId",
+                quantity: "$items.quantity"
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                totalQuanity: {
+                    $sum: "$quantity"
+                }
+            }
+        },
+        {
+            $sort: {
+                totalQuanity: -1
+            }
+        },
+        {
+            $limit: 10
+        }
+    ]);
+
+    const productNames = await Product.find().select('name');
+
+    const topProductsWithName = topProducts.map(p => ({
+        _id: productNames.find(n => (p._id).equals(n._id))._id,
+        productName: productNames.find(n => (p._id).equals(n._id)).name,
+        totalQuantitySold: p.totalQuanity
+    }))
+
+    res.status(200).json({
+        status: 'success',
+        data: { topProductsWithName }
+    })
+});
+
+exports.getNewStoreCustomerSignupsThisMonth = asyncErrorHandler(async (req, res, next) => {
+    const storeId = req.storeId;
+
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const stats = await User.aggregate([
+        {
+            $match: {
+                role: 'customer',
+                storeId: storeId,
+                createdAt: { $gte: startOfMonth }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalSignups: { $sum: 1 }
+            }
+        }
+    ]);
+
+    const signupCount = stats.length > 0 ? stats[0].totalSignups : 0;
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            newCustomerSignups: signupCount,
+            month: startOfMonth.toLocaleString('default', { month: 'long' })
+        }
+    });
+});
