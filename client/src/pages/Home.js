@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, Shield, Zap, Globe } from 'lucide-react';
+import { ArrowRight, Star, Shield, Zap, Globe, ShoppingBag } from 'lucide-react';
 
 const Home = () => {
   return (
