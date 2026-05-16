@@ -1,0 +1,10 @@
+[
+  {
+    "storeName": "Omnix Tech Store",
+    "status": "active",
+    "settings": {
+      "currency": "USD",
+      "themeColor": "#000000"
+    }
+  }
+]

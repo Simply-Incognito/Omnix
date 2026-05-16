@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone } from 'lucide-react';
+import { MessageCircle, Send, Camera, Play, Mail, MapPin, Phone } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -20,16 +20,16 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a href="#" className="p-2 bg-white/5 hover:bg-indigo-500/20 rounded-lg transition-colors text-slate-400 hover:text-indigo-400">
-                <Facebook size={20} />
+                <MessageCircle size={20} />
               </a>
               <a href="#" className="p-2 bg-white/5 hover:bg-indigo-500/20 rounded-lg transition-colors text-slate-400 hover:text-indigo-400">
-                <Twitter size={20} />
+                <Send size={20} />
               </a>
               <a href="#" className="p-2 bg-white/5 hover:bg-indigo-500/20 rounded-lg transition-colors text-slate-400 hover:text-indigo-400">
-                <Instagram size={20} />
+                <Camera size={20} />
               </a>
               <a href="#" className="p-2 bg-white/5 hover:bg-indigo-500/20 rounded-lg transition-colors text-slate-400 hover:text-indigo-400">
-                <Youtube size={20} />
+                <Play size={20} />
               </a>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Auth from './pages/Auth';
 import './App.css';
 
 function App() {
@@ -16,7 +17,8 @@ function App() {
             <Route path="/shop" element={<Placeholder title="Marketplace" />} />
             <Route path="/categories" element={<Placeholder title="Categories" />} />
             <Route path="/stores" element={<Placeholder title="Verified Stores" />} />
-            <Route path="/login" element={<Placeholder title="Sign In" />} />
+            <Route path="/login" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
           </Routes>
         </main>
         <Footer />

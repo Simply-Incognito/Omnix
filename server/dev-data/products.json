@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Ultra HD Smart TV",
+    "description": "Experience breathtaking visuals with our 55-inch 4K Ultra HD Smart TV featuring HDR10+ and built-in voice control.",
+    "price": 599.99,
+    "category": "Electronics",
+    "stockQuantity": 25,
+    "photo": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.8,
+    "ratingsQuantity": 150
+  },
+  {
+    "name": "Classic Denim Jacket",
+    "description": "Timeless style meets modern comfort. This premium denim jacket is a must-have for every wardrobe.",
+    "price": 89.50,
+    "category": "Clothing",
+    "stockQuantity": 50,
+    "photo": "https://images.unsplash.com/photo-1576871337622-98d48d890e49?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.5,
+    "ratingsQuantity": 85
+  },
+  {
+    "name": "Minimalist Coffee Table",
+    "description": "A sleek, handcrafted oak coffee table that adds a touch of Nordic elegance to your living room.",
+    "price": 249.00,
+    "category": "Home Goods",
+    "stockQuantity": 10,
+    "photo": "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.9,
+    "ratingsQuantity": 32
+  },
+  {
+    "name": "Wireless Noise Cancelling Headphones",
+    "description": "Immerse yourself in music with industry-leading noise cancellation and 30-hour battery life.",
+    "price": 349.99,
+    "category": "Electronics",
+    "stockQuantity": 40,
+    "photo": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.7,
+    "ratingsQuantity": 210
+  },
+  {
+    "name": "Organic Cotton Hoodie",
+    "description": "Soft, breathable, and sustainably made. The perfect layer for chilly evenings.",
+    "price": 55.00,
+    "category": "Clothing",
+    "stockQuantity": 100,
+    "photo": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.3,
+    "ratingsQuantity": 45
+  },
+  {
+    "name": "Professional Chef's Knife",
+    "description": "Precision-forged high-carbon steel blade for effortless slicing and dicing.",
+    "price": 120.00,
+    "category": "Home Goods",
+    "stockQuantity": 15,
+    "photo": "https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.9,
+    "ratingsQuantity": 68
+  },
+  {
+    "name": "Hydrating Face Serum",
+    "description": "Revitalize your skin with our hyaluronic acid-infused serum for a youthful glow.",
+    "price": 38.00,
+    "category": "Beauty",
+    "stockQuantity": 75,
+    "photo": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.6,
+    "ratingsQuantity": 120
+  },
+  {
+    "name": "Yoga Mat Premium Edition",
+    "description": "Extra thick, non-slip mat designed for maximum comfort during your practice.",
+    "price": 45.00,
+    "category": "Sports",
+    "stockQuantity": 60,
+    "photo": "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?auto=format&fit=crop&q=80&w=1000",
+    "ratingsAverage": 4.4,
+    "ratingsQuantity": 95
+  }
+]
